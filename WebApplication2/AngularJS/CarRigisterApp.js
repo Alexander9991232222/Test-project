@@ -1,0 +1,1 @@
+﻿var CarRegisterApp = angular.module('CarRegisterApp', []);

@@ -1,0 +1,181 @@
+﻿@section Scripts{
+    <script src="~/AngularJS/CarRigisterApp.js"></script>
+    <script src="~/AngularJS/Services/ApiService.js"></script>
+    <script src="~/AngularJS/Interseptors/HttpPathInterceptor.js"></script>
+    <script src="~/AngularJS/Interseptors/HttpErrorInterseptor.js"></script>
+    <script src="~/AngularJS/Interseptors/HttpHeaderInterseptor.js"></script>
+    <script src="~/AngularJS/Services/MainService.js"></script>
+    <script src="~/AngularJS/Controllers/MainController.js"></script>
+}
+
+<style>
+    .model-delete {
+        display:flex; 
+        justify-content:center; 
+        align-items:center;
+    }
+
+    .delete-title {
+        display: block;
+        width: 100%;
+        height: 100%;
+        text-align: center;
+        padding: 20px;
+        font-size: 30px;
+    }
+    /* Chrome, Safari, Edge, Opera */
+    input::-webkit-outer-spin-button,
+    input::-webkit-inner-spin-button {
+        -webkit-appearance: none;
+        margin: 0;
+    }
+
+    /* Firefox */
+    input[type=number] {
+        -moz-appearance: textfield;
+    }
+</style>
+
+<div ng-app="CarRegisterApp">
+    <div ng-controller="MainController" class="container">
+
+        <!-- Button trigger modal -->
+        <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#modalWindow" ng-click="AddPersonModal()">
+            Add person
+        </button>
+
+        <!-- Table -->
+        <table class="table table-striped">
+            <thead>
+                <tr>
+                    <th>For Person</th>
+                    <th>Name</th>
+                    <th>Patronymic</th>
+                    <th>Surname</th>
+                    <th>Phone</th>
+                    <th>Car(s)</th>
+                    <th>For car</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr ng-repeat="person in persons">
+                    <td class="filterable-cell">
+                        <button type="button" class="btn btn-default" aria-label="Left Align" ng-click="EditPersonModal(person)" data-toggle="modal" data-target="#modalWindow">
+                            <span class="glyphicon glyphicon-edit" aria-hidden="true"></span>
+                        </button>
+                        <button type="button" class="btn btn-default" aria-label="Left Align" ng-click="DeletePersonModal(person)" data-toggle="modal" data-target="#modalWindow">
+                            <span class="glyphicon glyphicon-trash" aria-hidden="true"></span>
+                        </button>
+                    </td>
+                    <td class="filterable-cell">{{person.name}}</td>
+                    <td class="filterable-cell">{{person.surname}}</td>
+                    <td class="filterable-cell">{{person.patronymic}}</td>
+                    <td class="filterable-cell">{{person.phone}}</td>
+                    <td class="filterable-cell">
+                        <select class="form-control" id="exampleFormControlSelect1" ng-model="person.selectedCarId" ng-disabled="!(person.cars.length > 0)">
+                            <option ng-repeat="car in person.cars" ng-value="{{car.id}}">[{{car.carName}}-{{car.carModel}}] №{{car.carNumber}}</option>
+                        </select>
+                    </td>
+                    <td class="filterable-cell">
+                        <button type="button" class="btn btn-default" aria-label="Left Align"
+                                ng-click="AddCarModal(person)"
+                                data-toggle="modal"
+                                data-target="#modalWindow">
+                            <span class="glyphicon glyphicon-plus" aria-hidden="true"></span>
+                        </button>
+                        <button type="button" class="btn btn-default" aria-label="Left Align"
+                                ng-click="EditCarModal(person)"
+                                ng-disabled="!(person.cars.length > 0)"
+                                data-toggle="modal" data-target="#modalWindow">
+                            <span class="glyphicon glyphicon-edit" aria-hidden="true"></span>
+                        </button>
+                        <button type="button" class="btn btn-default" aria-label="Left Align"
+                                ng-click="DeleteCarModal(person.selectedCarId)"
+                                ng-disabled="!(person.cars.length > 0)"
+                                data-toggle="modal" data-target="#modalWindow">
+                            <span class="glyphicon glyphicon-trash" aria-hidden="true"></span>
+                        </button>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+
+        <!-- Modal -->
+        <div name="modalWindow" class="modal fade" id="modalWindow" tabindex="-1" role="dialog" aria-labelledby="Person" aria-hidden="true">
+            <div class="modal-dialog" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="Person">{{titleModal}}</h5>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                    <div class="modal-body">
+                        <div class="form-horizontal" ng-switch on="modalSwitcher" ng-submit="">
+
+                            <!-- Template person form -->
+                            <div ng-switch-when="person">
+                                <div class="form-group">
+                                    <label class="control-label col-sm-2" for="name">Name:</label>
+                                    <div class="col-sm-10">
+                                        <input type="text" class="form-control" id="name" ng-model="selectPerson.name" placeholder="Enter name">
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <label class="control-label col-sm-2" for="surname">Surname:</label>
+                                    <div class="col-sm-10">
+                                        <input type="text" class="form-control" id="surname" ng-model="selectPerson.surname" placeholder="Enter surname">
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <label class="control-label col-sm-2" for="patronymic">Patronymic:</label>
+                                    <div class="col-sm-10">
+                                        <input type="text" class="form-control" id="patronymic" ng-model="selectPerson.patronymic" placeholder="Enter patronymic" >
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <label class="control-label col-sm-2" for="phone">Phone:</label>
+                                    <div class="col-sm-10">
+                                        <input type="number" class="form-control" id="phone" ng-model="selectPerson.phone" placeholder="Enter phone">
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Template car form -->
+                            <div ng-switch-when="car">
+                                <div class="form-group">
+                                    <label class="control-label col-sm-3" for="carName">Car name:</label>
+                                    <select class="form-control" id="carName" ng-model="selectCar.carName">
+                                        <option ng-repeat="key in carKeysModel" ng-value="key">{{key}}</option>
+                                    </select>
+                                </div>
+                                <div class="form-group">
+                                    <label class="control-label col-sm-3" for="carModel">Car model:</label>
+                                    <select class="form-control" id="carModel" ng-model="selectCar.carModel">
+                                        <option ng-value="model" ng-repeat="model in carModelsConverted[selectCar.carName]">{{model}}</option>
+                                    </select>
+                                </div>
+                                <div class="form-group" style="display:flex">
+                                    <label class="control-label col-sm-3" for="carNumber">Car number:</label>
+                                    <div class="col-sm-8" style="padding: 0">
+                                        <input type="text" class="form-control" id="carNumber" ng-model="selectCar.carNumber" placeholder="Enter car number">
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Template delete form -->
+                            <div class="model-delete" ng-switch-when="delete">
+                                <span class="delete-title">Are you sure ?</span>
+                            </div>
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                                <button type="button" class="btn btn-primary" ng-click="sendRequest()">Ok</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+</div>
